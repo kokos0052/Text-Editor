@@ -11,18 +11,20 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
-    <title>Document</title>
+    <title>Блокнот</title>
   </head>
   <body>
     <div class="title-bar">
-      <span class="document-name" id="documentName">no file selected</span>
-
       <div class="menu-section">
-        <button id="openDocumentBtn">
-          <span class="material-icons"> launch </span>
-        </button>
-        <button id="createDocumentBtn">
-          <span class="material-icons"> note_add </span>
+          <input id="paletteBtn" type="color" value="#ffffff" />
+          <span class="material-icons"> palette </span>
+        <select id="font-select">
+          <option value="time-new-roman">Time-New-Roman</option>
+          <option value="coureur-new">Coureur-New</option>
+          <option value="arial">Arial</option>
+        </select>
+        <button id="printButton">
+          <span class="material-icons"> print </span>
         </button>
       </div>
     </div>

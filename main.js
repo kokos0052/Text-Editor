@@ -19,6 +19,7 @@ if (isDevEnv) {
 
 let mainWindow;
 let openedFilePath;
+let textareaContent = "";
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
@@ -38,50 +39,20 @@ const createWindow = () => {
 
   const menuTemplate = [
     {
-      label: "File",
-      submenu: [
-        {
-          label: "Add New File",
-          click: () => ipcMain.emit("open-document-triggered"),
-        },
-        {
-          label: "Create New File",
-          click: () => ipcMain.emit("create-document-triggered"),
-        },
-        { type: "separator" },
-        {
-          label: "Open Recent",
-          role: "recentdocuments",
-          submenu: [
-            {
-              label: "Clear Recent",
-              role: "clearrecentdocuments",
-            },
-          ],
-        },
-        {
-          role: "quit",
-        },
-      ],
+      label: "Open",
+      click: () => ipcMain.emit("file-open"),
     },
     {
-      label: "Edit",
-      submenu: [
-        { role: "undo" },
-        { role: "redo" },
-        { type: "separator" },
-        { role: "cut" },
-        { role: "copy" },
-        { role: "paste" },
-        { role: "pasteAndMatchStyle" },
-        { role: "delete" },
-        { role: "selectAll" },
-        { type: "separator" },
-        {
-          label: "Speech",
-          submenu: [{ role: "startSpeaking" }, { role: "stopSpeaking" }],
-        },
-      ],
+      label: "Save",
+      click: () => ipcMain.emit("file-save"),
+    },
+    {
+      label: "Save As",
+      click: () => ipcMain.emit("file-save-as"),
+    },
+    {
+      label: "Exit",
+      role: "quit",
     },
   ];
 
@@ -106,6 +77,7 @@ const openFile = (filePath) => {
       app.addRecentDocument(filePath);
       openedFilePath = filePath;
       mainWindow.webContents.send("document-opened", { filePath, content });
+      mainWindow.setTitle("Блокнот " + path.parse(filePath).base);
     }
   });
 };
@@ -114,7 +86,7 @@ app.on("open-file", (_, filePath) => {
   openFile(filePath);
 });
 
-ipcMain.on("open-document-triggered", () => {
+ipcMain.on("file-open", () => {
   dialog
     .showOpenDialog({
       properties: ["openFile"],
@@ -127,13 +99,17 @@ ipcMain.on("open-document-triggered", () => {
     });
 });
 
-ipcMain.on("create-document-triggered", () => {
+ipcMain.on("file-content-updated", (_, content) => {
+  textareaContent = content;
+});
+
+ipcMain.on("file-save-as", () => {
   dialog
     .showSaveDialog(mainWindow, {
       filters: [{ name: "text files", extensions: ["txt"] }],
     })
     .then(({ filePath }) => {
-      fs.writeFile(filePath, "", (error) => {
+      fs.writeFile(filePath, textareaContent, (error) => {
         if (error) {
           handleError();
         } else {
@@ -145,10 +121,35 @@ ipcMain.on("create-document-triggered", () => {
     });
 });
 
-ipcMain.on("file-content-updated", (_, textareaContent) => {
+ipcMain.on("file-save", () => {
+  console.log(`123`, openedFilePath, textareaContent)
   fs.writeFile(openedFilePath, textareaContent, (error) => {
     if (error) {
+      console.log(error);
       handleError();
     }
   });
+});
+
+ipcMain.on("file-print", () => {
+  let win = BrowserWindow.getFocusedWindow();
+
+  var options = {
+    silent: false ,
+    printBackground: true ,
+    color: false ,
+    margin: {
+    marginType: 'printableArea'
+    },
+    landscape: false ,
+    pagesPerSheet: 1,
+    collate: false ,
+    copies: 1,
+    header: 'Header of the Page' ,
+    footer: 'Footer of the Page'
+    }
+  win.webContents.print(options, (success, failureReason) => {
+    if (!success) console.log(failureReason);
+    console.log( 'Print Initiated' );
+    });
 });

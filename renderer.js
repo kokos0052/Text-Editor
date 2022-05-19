@@ -1,31 +1,43 @@
-const { ipcRenderer } = require("electron");
-const path = require("path");
+const { ipcRenderer, BrowserWindow } = require("electron");
 
 window.addEventListener("DOMContentLoaded", () => {
   const el = {
-    documentName: document.getElementById("documentName"),
-    createDocumentBtn: document.getElementById("createDocumentBtn"),
-    openDocumentBtn: document.getElementById("openDocumentBtn"),
+    paletteButton: document.getElementById("paletteBtn"),
     fileTextarea: document.getElementById("fileTextarea"),
+    fontSelect: document.getElementById("font-select"),
+    printButton: document.getElementById("printButton"),
   };
 
   const handleDocumentChange = (filePath, content = "") => {
-    el.documentName.innerHTML = path.parse(filePath).base;
     el.fileTextarea.removeAttribute("disabled");
     el.fileTextarea.value = content;
     el.fileTextarea.focus();
   };
 
-  el.createDocumentBtn.addEventListener("click", () => {
-    ipcRenderer.send("create-document-triggered");
-  });
-
-  el.openDocumentBtn.addEventListener("click", () => {
-    ipcRenderer.send("open-document-triggered");
+  el.paletteButton.addEventListener("input", (e) => {
+    el.fileTextarea.style.color = e.target.value;
   });
 
   el.fileTextarea.addEventListener("input", (e) => {
     ipcRenderer.send("file-content-updated", e.target.value);
+  });
+
+  el.fontSelect.addEventListener("change", (e) => {
+    switch (e.target.value) {
+      case "time-new-roman":
+        el.fileTextarea.style.fontFamily = "'Times New Roman', Times, serif";
+        break;
+      case "coureur-new":
+        el.fileTextarea.style.fontFamily = "'Courier New', Courier, monospace";
+        break;
+      case "arial":
+        el.fileTextarea.style.fontFamily = "Arial, Helvetica, sans-serif";
+        break;
+    }
+  });
+
+  el.printButton.addEventListener("click", (e) => {
+    ipcRenderer.send("file-print");
   });
 
   ipcRenderer.on("document-opened", (_, { filePath, content }) => {

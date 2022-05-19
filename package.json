@@ -4,8 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "NODE_ENV=development electron .",
-    "build": "electron-builder",
+    "start": "ELECTRON_ENABLE_LOGGING=1 NODE_ENV=development electron .",
+    "build": "electron-builder -l portable",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

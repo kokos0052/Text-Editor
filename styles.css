@@ -14,7 +14,17 @@ body {
   -webkit-app-region: drag;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.menu-section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#font-select {
+  margin: 0px 20px;
 }
 
 .title-bar .document-name,
@@ -24,6 +34,10 @@ body {
 
 .menu-section button {
   background-color: rgb(170, 209, 209);
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: none;
   outline: none;
 }
